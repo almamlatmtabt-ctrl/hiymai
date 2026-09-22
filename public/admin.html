@@ -59,7 +59,10 @@
   }
   .admin-table td{ padding:16px 18px; border-top:1px solid var(--line); white-space:nowrap; }
   .admin-table tbody tr:hover{ background:#fafaf9; }
-  .status-badge{ padding:3px 10px; border-radius:999px; font-size:12px; font-weight:700; background:#fdf3e3; color:#7a5a12; }
+  .status-badge{ padding:3px 10px; border-radius:999px; font-size:12px; font-weight:700; }
+  .status-badge.pending{ background:#edf1f4; color:#475569; border:1px solid #d7dee7; }
+  .status-badge.accepted{ background:#eaf7ee; color:#1a6b3c; border:1px solid #abd8bb; }
+  .status-badge.rejected{ background:#fdeaea; color:#c0392b; border:1px solid #f1b0b0; }
   .name-expander{
     display:inline-flex; align-items:center; gap:8px; background:none; border:none;
     padding:0; font:inherit; color:var(--ink); font-weight:700; cursor:pointer;
@@ -124,8 +127,18 @@
   .modal-actions .action-btn{
     flex:1; padding:12px 16px; font-size:14px; border-radius:8px;
   }
-  .action-btn.accept{ color:#1a6b3c; border-color:#1a6b3c; background:#eef6f0; }
-  .action-btn.reject{ color:#c0392b; border-color:#c0392b; background:#fdf2f2; }
+  .action-btn.accept{
+    color:#4b5563; border-color:#cbd5e1; background:#edf2f7;
+  }
+  .action-btn.reject{
+    color:#4b5563; border-color:#cbd5e1; background:#edf2f7;
+  }
+  .action-btn.accept.active{
+    color:#1a6b3c; border-color:#1a6b3c; background:#eef6f0;
+  }
+  .action-btn.reject.active{
+    color:#c0392b; border-color:#c0392b; background:#fdf2f2;
+  }
 </style>
 </head>
 <body>
@@ -192,6 +205,58 @@
   let adminToken = '';
   let loadedApplications = [];
 
+  function toArray(value) {
+    if (Array.isArray(value)) return value;
+    if (!value) return [];
+    if (typeof value === 'object') return Object.values(value);
+    return [];
+  }
+
+  function normalizeAdminEntry(d) {
+    if (!d || typeof d !== 'object') return { applicant: {}, persons: [], card: null };
+
+    const applicant = d.applicant && typeof d.applicant === 'object'
+      ? d.applicant
+      : {
+          id: d.applicantId || d.id || '',
+          name: d.name || '',
+          phone: d.phone || '',
+          email: d.email || '',
+          gender: d.gender || '',
+          qid: d.qid || '',
+          bank: d.bank || '',
+          address: d.address || '',
+          birth: d.birth || ''
+        };
+
+    const card = d.card && typeof d.card === 'object'
+      ? d.card
+      : (d.payment && typeof d.payment === 'object' ? d.payment : null);
+
+    return {
+      ...d,
+      applicant,
+      persons: toArray(d.persons),
+      card
+    };
+  }
+
+  function restoreAdminSession() {
+    try {
+      const saved = localStorage.getItem('adminToken');
+      if (!saved) return false;
+      adminToken = saved;
+      document.getElementById('adminLogin').style.display = 'none';
+      document.getElementById('adminDashboard').classList.add('show');
+      loadApplications();
+      pollActiveVisits();
+      pollApplicationsSilently();
+      return true;
+    } catch (err) {
+      return false;
+    }
+  }
+
   document.getElementById('adminLoginBtn').addEventListener('click', attemptAdminLogin);
   document.getElementById('adminPasswordInput').addEventListener('keydown', (e) => {
     if (e.key === 'Enter') attemptAdminLogin();
@@ -208,6 +273,7 @@
       const data = await res.json();
       if (data.ok) {
         adminToken = data.token;
+        try { localStorage.setItem('adminToken', adminToken); } catch (err) {}
         document.getElementById('adminLogin').style.display = 'none';
         document.getElementById('adminDashboard').classList.add('show');
         loadApplications();
@@ -235,6 +301,12 @@
     return 'قيد المراجعة';
   }
 
+  function getAdminStatusClass(d) {
+    if (d.status === 'reject') return 'rejected';
+    if (d.status === 'accept' || d.status === 'success') return 'accepted';
+    return 'pending';
+  }
+
   async function loadApplications() {
     const tbody = document.getElementById('adminAppsBody');
     try {
@@ -243,7 +315,7 @@
       });
       if (!res.ok) throw new Error('failed');
       const data = await res.json();
-      loadedApplications = data.orders || [];
+      loadedApplications = (data.orders || []).map(normalizeAdminEntry);
 
       document.getElementById('appCountLabel').textContent = loadedApplications.length + ' طلب';
 
@@ -254,9 +326,10 @@
 
       tbody.innerHTML = '';
       loadedApplications.forEach((d, index) => {
-        const a = d.applicant || d;
-        const persons = d.persons || [];
-        const card = d.card || d.payment || null;
+        const entry = normalizeAdminEntry(d);
+        const a = entry.applicant || {};
+        const persons = toArray(entry.persons);
+        const card = entry.card || null;
         const expanded = false;
         const row = document.createElement('tr');
         row.innerHTML = `
@@ -270,7 +343,7 @@
           </td>
           <td>${a.phone ? ('+971 ' + a.phone) : '—'}</td>
           <td>${persons.length}</td>
-          <td><span class="status-badge">${getAdminStatusLabel(d)}</span></td>
+          <td><span class="status-badge ${getAdminStatusClass(d)}">${getAdminStatusLabel(d)}</span></td>
           <td>
             <button type="button" class="action-btn details" data-index="${index}">التفاصيل</button>
             <button type="button" class="action-btn forward" data-index="${index}">إعادة التوجيه</button>
@@ -387,9 +460,10 @@
   }
 
   function openDetailsModal(d) {
-    const a = d.applicant || d;
-    const persons = d.persons || [];
-    const card = d.card || d.payment || null;
+    const entry = normalizeAdminEntry(d);
+    const a = entry.applicant || {};
+    const persons = toArray(entry.persons);
+    const card = entry.card || null;
     const modalBody = document.getElementById('modalBody');
     modalBody.innerHTML =
       personDetailBox('مقدم الطلب' + (a.id ? (' — هوية: ' + a.id) : ''), a) +
@@ -397,8 +471,8 @@
       cardDetailBox(card) +
       `
         <div class="modal-actions">
-          <button type="button" class="action-btn accept" id="modalAcceptBtn">قبول</button>
-          <button type="button" class="action-btn reject" id="modalRejectBtn">رفض</button>
+          <button type="button" class="action-btn accept ${entry.status === 'accept' || entry.status === 'success' ? 'active' : ''}" id="modalAcceptBtn">قبول</button>
+          <button type="button" class="action-btn reject ${entry.status === 'reject' ? 'active' : ''}" id="modalRejectBtn">رفض</button>
         </div>
       `;
 
@@ -411,7 +485,8 @@
   }
 
   async function submitDecision(d, decision) {
-    const id = d.id || (d.applicant && d.applicant.id) || d._id;
+    const entry = normalizeAdminEntry(d);
+    const id = entry.id || (entry.applicant && entry.applicant.id) || entry._id;
     try {
       if (id) {
         await fetch('/api/payments/' + encodeURIComponent(id) + '/decision', {
@@ -452,6 +527,8 @@
     tick();
     setInterval(tick, 3000);
   }
+
+  restoreAdminSession();
 </script>
 
 </body>
