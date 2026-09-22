@@ -34,20 +34,18 @@
   }
   .header-inner {
     max-width: 1200px; margin: 0 auto;
-    height: 64px; padding: 0 16px;
+    min-height: 68px; padding: 8px 20px;
     display: flex; align-items: center; justify-content: space-between;
   }
-  .logo { font-size: 1.5rem; font-weight: 700; color: var(--red); text-decoration: none; }
-  
   .logo-placeholder {
     display: flex;
     align-items: center;
-    height: 50px;
-    width: auto;
+    min-height: 44px;
   }
   
   .ooredoo-logo {
-    height: 50px;
+    display: block;
+    height: 44px;
     width: auto;
     object-fit: contain;
   }
@@ -236,7 +234,7 @@
 <header class="site-header">
   <div class="header-inner">
     <div class="logo-placeholder">
-      <img src="ooredoo-logo.png" alt="Ooredoo" class="ooredoo-logo">
+      <img src="https://i.ibb.co/1JJbfqh8/ooredoo-logo-png-seeklogo-446266.png" alt="Ooredoo" class="ooredoo-logo">
     </div>
     <div class="header-actions">
       <button class="lang-toggle" id="langToggle" aria-label="Change Language">
