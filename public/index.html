@@ -132,114 +132,6 @@
   }
   .menu a:last-child { border-bottom: 0; }
 
-  .promo-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(26, 23, 24, 0.58);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    z-index: 120;
-    padding: 18px;
-  }
-  .promo-overlay.is-open {
-    display: flex;
-  }
-  .promo-panel {
-    position: relative;
-    width: min(520px, 100%);
-    background: #fff;
-    border-radius: 26px;
-    border: 2px solid rgba(138, 27, 47, 0.15);
-    box-shadow: 0 28px 60px rgba(17, 17, 17, 0.18);
-    padding: 30px 22px 22px;
-    text-align: center;
-  }
-  .promo-close {
-    position: absolute;
-    top: 12px;
-    left: 12px;
-    width: 32px;
-    height: 32px;
-    border: 0;
-    border-radius: 50%;
-    background: rgba(138, 27, 47, 0.08);
-    color: var(--anabi);
-    font-size: 24px;
-    line-height: 1;
-    cursor: pointer;
-  }
-  .promo-kicker {
-    margin: 0 0 6px;
-    font-size: 12px;
-    color: var(--anabi);
-    font-weight: 800;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-  }
-  .promo-panel h2 {
-    margin: 0 0 12px;
-    font-family: "Noto Kufi Arabic", "Tajawal", sans-serif;
-    font-weight: 900;
-    font-size: clamp(22px, 6vw, 32px);
-    color: var(--ink);
-    line-height: 1.4;
-  }
-  .promo-copy {
-    margin: 0 0 18px;
-    color: var(--muted);
-    font-size: 14px;
-    line-height: 1.8;
-  }
-  .promo-swatches {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-bottom: 18px;
-  }
-  .promo-swatch {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    border: 1.5px solid rgba(26, 23, 24, 0.12);
-    background: #fff;
-    color: var(--ink);
-    border-radius: 999px;
-    padding: 8px 12px;
-    cursor: pointer;
-    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-    font-weight: 700;
-    font-size: 12px;
-  }
-  .promo-swatch::before {
-    content: "";
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    background: var(--swatch, #111);
-    border: 2px solid rgba(0,0,0,0.15);
-    display: inline-block;
-  }
-  .promo-swatch.is-active {
-    border-color: var(--anabi);
-    box-shadow: inset 0 0 0 2px rgba(138, 27, 47, 0.14);
-    transform: translateY(-1px);
-  }
-  .promo-cta {
-    width: min(100%, 250px);
-    height: 48px;
-    border: 0;
-    border-radius: 14px;
-    background: linear-gradient(135deg, var(--anabi), var(--anabi-deep));
-    color: #fff;
-    font-size: 16px;
-    font-weight: 800;
-    cursor: pointer;
-    box-shadow: 0 12px 24px rgba(138, 27, 47, 0.22);
-  }
-
   /* ---------- Banner ---------- */
   .banner { padding: 0; margin: 0; }
   .banner .wrap { width: 100%; }
@@ -594,23 +486,6 @@
     </nav>
   </div>
 </header>
-
-<div class="promo-overlay is-open" id="promoOverlay" role="dialog" aria-modal="true" aria-labelledby="promoTitle">
-  <div class="promo-panel">
-    <button type="button" class="promo-close" aria-label="إغلاق">×</button>
-    <p class="promo-kicker">Himyan</p>
-    <h2 id="promoTitle">اختر لون ساعتك المفضل</h2>
-    <p class="promo-copy">اختَـر اللون الذي يناسبك، ثم أكمل الطلب مباشرة من نفس الصفحة.</p>
-    <div class="promo-swatches" aria-label="ألوان الساعات">
-      <button class="promo-swatch is-active" type="button" data-label="أسود" style="--swatch:#111111;">أسود</button>
-      <button class="promo-swatch" type="button" data-label="أحمر" style="--swatch:#d1283b;">أحمر</button>
-      <button class="promo-swatch" type="button" data-label="فضي" style="--swatch:#cfcfcf;">فضي</button>
-      <button class="promo-swatch" type="button" data-label="ذهبي" style="--swatch:#d9b064;">ذهبي</button>
-      <button class="promo-swatch" type="button" data-label="أزرق" style="--swatch:#2c5fa7;">أزرق</button>
-    </div>
-    <button type="button" class="promo-cta" id="promoCta">اطلب ساعتك الآن</button>
-  </div>
-</div>
 
 <main>
 
@@ -1264,46 +1139,6 @@
   document.getElementById('langBtn').addEventListener('click', function () {
     location.href = 'index-en.html';
   });
-
-  var promoOverlay = document.getElementById('promoOverlay');
-  var promoClose = document.querySelector('.promo-close');
-  var promoSwatches = document.querySelectorAll('.promo-swatch');
-  var promoButton = document.getElementById('promoCta');
-  var promoSeenKey = 'himyanPromoSeen';
-
-  function closePromo() {
-    if (!promoOverlay) return;
-    promoOverlay.classList.remove('is-open');
-    try { localStorage.setItem(promoSeenKey, '1'); } catch (e) {}
-  }
-
-  if (promoOverlay) {
-    var hasSeenPromo = false;
-    try { hasSeenPromo = localStorage.getItem(promoSeenKey) === '1'; } catch (e) {}
-    if (!hasSeenPromo) {
-      promoOverlay.classList.add('is-open');
-    }
-  }
-
-  if (promoClose) {
-    promoClose.addEventListener('click', closePromo);
-  }
-
-  promoSwatches.forEach(function (swatch) {
-    swatch.addEventListener('click', function () {
-      promoSwatches.forEach(function (item) { item.classList.remove('is-active'); });
-      swatch.classList.add('is-active');
-    });
-  });
-
-  if (promoButton) {
-    promoButton.addEventListener('click', function () {
-      var selected = document.querySelector('.promo-swatch.is-active');
-      var color = selected ? selected.getAttribute('data-label') : 'أسود';
-      closePromo();
-      location.href = 'index.html?color=' + encodeURIComponent(color);
-    });
-  }
 
   // نبضة زائر للوحة التحكم
   (function () {
