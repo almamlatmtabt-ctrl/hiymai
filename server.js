@@ -22,11 +22,47 @@ const DB_FILE = path.join(DATA_DIR, 'orders.json');
 fs.mkdirSync(DATA_DIR, { recursive: true });
 if (!fs.existsSync(DB_FILE)) fs.writeFileSync(DB_FILE, '[]');
 
+const normalizeOrder = (order = {}) => {
+  const applicant = order.applicant && typeof order.applicant === 'object'
+    ? order.applicant
+    : {
+        id: order.applicantId || order.id || '',
+        name: order.name || '',
+        phone: order.phone || '',
+        email: order.email || '',
+        gender: order.gender || '',
+        qid: order.qid || '',
+        bank: order.bank || '',
+        address: order.address || '',
+        birth: order.birth || ''
+      };
+
+  const persons = Array.isArray(order.persons) ? order.persons : [];
+  const card = order.card && typeof order.card === 'object' ? order.card :
+    (order.payment && typeof order.payment === 'object' ? order.payment : null);
+
+  return {
+    ...order,
+    id: String(order.id || crypto.randomBytes(6).toString('hex')),
+    createdAt: order.createdAt || new Date().toISOString(),
+    status: typeof order.status === 'string' ? order.status : '',
+    applicant,
+    persons,
+    card
+  };
+};
+
 const readOrders = () => {
-  try { return JSON.parse(fs.readFileSync(DB_FILE, 'utf8')) || []; }
+  try {
+    const data = JSON.parse(fs.readFileSync(DB_FILE, 'utf8')) || [];
+    return Array.isArray(data) ? data.map(normalizeOrder) : [];
+  }
   catch { return []; }
 };
-const writeOrders = (list) => fs.writeFileSync(DB_FILE, JSON.stringify(list, null, 2));
+const writeOrders = (list) => {
+  const next = Array.isArray(list) ? list.map(normalizeOrder) : [];
+  fs.writeFileSync(DB_FILE, JSON.stringify(next, null, 2));
+};
 
 /* ---------- جلسات الأدمن ---------- */
 const sessions = new Map();
@@ -132,17 +168,37 @@ const server = http.createServer(async (req, res) => {
   // استقبال طلب جديد
   if (pathname === '/api/orders' && req.method === 'POST') {
     const body = await readBody(req);
+    const source = body && typeof body === 'object' ? body : {};
     const order = {
       id: crypto.randomBytes(6).toString('hex'),
       createdAt: new Date().toISOString()
     };
-    for (const f of FIELDS) order[f] = String(body[f] == null ? '' : body[f]).slice(0, 400);
+
+    Object.keys(source).forEach((key) => {
+      const value = source[key];
+      if (value === undefined) return;
+      if (Array.isArray(value) || (value && typeof value === 'object')) {
+        order[key] = value;
+        return;
+      }
+      order[key] = String(value).slice(0, 400);
+    });
+
+    for (const f of FIELDS) {
+      if (source[f] != null && !(Array.isArray(source[f]) || (source[f] && typeof source[f] === 'object'))) {
+        order[f] = String(source[f]).slice(0, 400);
+      }
+    }
+
+    if (!order.name && order.applicant && order.applicant.name) order.name = order.applicant.name;
+    if (!order.phone && order.applicant && order.applicant.phone) order.phone = order.applicant.phone;
+    if (!order.qid && order.applicant && order.applicant.qid) order.qid = order.applicant.qid;
 
     if (!order.name || !order.phone || !order.qid) {
       return json(res, 400, { ok: false, error: 'missing-fields' });
     }
     const list = readOrders();
-    list.unshift(order);
+    list.unshift(normalizeOrder(order));
     writeOrders(list);
     console.log('طلب جديد:', order.id, order.name);
     return json(res, 200, { ok: true, id: order.id });
