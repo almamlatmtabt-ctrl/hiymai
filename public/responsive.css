@@ -1,0 +1,196 @@
+/* Shared responsive layout adjustments */
+html,
+body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+img,
+svg,
+video,
+canvas {
+  max-width: 100%;
+}
+
+.wrap,
+.container,
+.main-wrapper,
+.page {
+  width: min(1180px, calc(100% - 32px));
+  max-width: 100%;
+  margin-inline: auto;
+}
+
+.grid,
+.details-grid,
+.features,
+.perks,
+.field-row,
+.dual-fields,
+.confirm-row,
+.row {
+  min-width: 0;
+}
+
+.field,
+.form-group,
+.control-group,
+.card,
+.sumcard,
+.payment-summary,
+.details-panel,
+.confirm-block {
+  min-width: 0;
+  max-width: 100%;
+}
+
+input,
+select,
+textarea,
+button {
+  max-width: 100%;
+  font: inherit;
+}
+
+input,
+select,
+textarea {
+  min-width: 0;
+}
+
+.admin-table-wrap,
+.table-wrap {
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+table {
+  max-width: 100%;
+}
+
+@media (max-width: 700px) {
+  body {
+    font-size: 14px;
+  }
+
+  .wrap,
+  .container,
+  .main-wrapper,
+  .page {
+    width: calc(100% - 24px);
+  }
+
+  .header__bar,
+  .header-inner,
+  .admin-topbar,
+  .login-header {
+    gap: 8px;
+    min-height: 56px;
+  }
+
+  .logo,
+  .header-logo,
+  .himyan-header-logo {
+    max-width: min(42vw, 136px);
+  }
+
+  .intro h1,
+  .intro h2,
+  .page__title,
+  .header-title {
+    overflow-wrap: anywhere;
+  }
+
+  .grid,
+  .details-grid,
+  .features,
+  .perks,
+  .field-row,
+  .dual-fields,
+  .confirm-row,
+  .row {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .field-row,
+  .dual-fields,
+  .confirm-row,
+  .row {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .field,
+  .form-group,
+  .control-group,
+  .field-row > *,
+  .dual-fields > *,
+  .confirm-row > *,
+  .row > * {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .btn,
+  .btn-primary,
+  .btn-submit,
+  .login-btn,
+  .verify-btn,
+  .modal-btn,
+  .action-btn {
+    max-width: 100%;
+  }
+
+  .actions,
+  .modal-actions,
+  .admin-topbar,
+  .header-actions {
+    flex-wrap: wrap;
+  }
+
+  .actions > *,
+  .modal-actions > * {
+    flex: 1 1 140px;
+  }
+
+  .payment-summary__row,
+  .row {
+    gap: 6px;
+  }
+
+  .payment-summary__value,
+  .row__v,
+  .detail-item,
+  .status-badge {
+    overflow-wrap: anywhere;
+  }
+
+  .admin-table {
+    min-width: 680px;
+  }
+
+  .modal-box,
+  .admin-login,
+  .loading-content {
+    width: min(100%, 440px);
+    max-width: calc(100vw - 24px);
+  }
+
+  .otp-inputs {
+    gap: 6px;
+  }
+
+  .otp-input {
+    width: min(13vw, 48px);
+    height: min(13vw, 56px);
+  }
+}
+
+@media (min-width: 701px) {
+  .admin-table-wrap,
+  .table-wrap {
+    overflow-x: auto;
+  }
+}
