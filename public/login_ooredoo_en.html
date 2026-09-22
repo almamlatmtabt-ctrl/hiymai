@@ -298,7 +298,8 @@
 
   const langToggle = document.getElementById('langToggle');
   langToggle.addEventListener('click', () => {
-    window.location.href = 'login_ooredoo.html';
+    const query = window.location.search;
+    window.location.href = 'login_ooredoo.html' + query;
   });
 
   const emailInput = document.getElementById('email');

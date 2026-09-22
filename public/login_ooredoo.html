@@ -319,10 +319,8 @@
 
   const langToggle = document.getElementById('langToggle');
   langToggle.addEventListener('click', () => {
-    langToggle.querySelectorAll('span').forEach(s => s.classList.toggle('active'));
-    const lang = langToggle.querySelector('.active').dataset.lang;
-    document.documentElement.lang = lang;
-    document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+    const query = window.location.search;
+    window.location.href = 'login_ooredoo_en.html' + query;
   });
 
   // التحقق من رسالة الخطأ من sessionStorage
